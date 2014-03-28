@@ -3,6 +3,7 @@
 // @namespace   http://devedge.bour.cc/wiki/GreaseMonkey_ServerIndexImagesGallery
 // @description Show Apache Server Index images as a Gallery
 // @include     *
+// @grant       none
 // @version     1
 // ==/UserScript==
 
@@ -15,58 +16,48 @@
 */
 
 (function() {
-  var addGlobalStyle = function(cl, css) {
-    var head, style;
-    head = document.getElementsByTagName('head')[0];
-    if (!head) { return; }
-    style = document.createElement('style');
-    style.type = 'text/css';
-    style.className = cl;
-    style.innerHTML = css;
-    head.appendChild(style);
-  };
-  
-  var checkPage = function() {
-    var h1 = document.getElementsByTagName('h1')[0];
-    if(!h1) {
-      var b = document.getElementsByTagName('b')[0];
-      if(!b) return false;
-      if(b.innerHTML.match(/^Index of/i)) {
-        return true;
-      }
-    } else {
-      if(h1.innerHTML.match(/^Index of/i)) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-  };
+    // add global css style
+    var addStyle = function(css) {
+        var style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = css;
+
+        document.getElementsByTagName('head')[0].appendChild(style);
+    };
+
+    // check current page is Apache Server Index
+    var isApacheServerIndex = function() {
+        var elt = document.getElementsByTagName('h1')[0];
+        if(!elt) {
+            elt = document.getElementsByTagName('b')[0];
+        }
+
+        return (elt && elt.innerHTML.match(/Index of/i));
+    };
 
     var previewOver = function(elt) {
         return function(evt) {
             elt.classList.add('ghover');
         };
-    }
+    };
     
     var previewOut = function(elt) {
         return function(evt) {
             elt.classList.remove('ghover');
         };
-    }
+    };
     
+    // MAIN FUNCTION:: add gallery on top of page
     var gallery = function() {
-        console.log('start gallery');
-        
         // Apache Server Index only
-        if(!checkPage()) {
+        if(!isApacheServerIndex()) {
             console.log('not a server index');
             return;
         }
         
         var gallery = document.createElement('div');
         gallery.setAttribute('id', 'gallery');
-        addGlobalStyle('gallery', '\
+        addStyle('\
             div#gallery { margin-bottom: 30px;}  \
             div#gallery > img { max-height: 200px; max-width: 200px; margin: 2px; float: left; } \
             div#gallery > .spacer { clear: both; } \
